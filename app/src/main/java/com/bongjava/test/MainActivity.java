@@ -2,6 +2,8 @@ package com.bongjava.test;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.GridLayout;
+import android.widget.TextView;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,10 +12,18 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
+    GridLayout glMineBoard;
+//    TextView tvMineBoard;
+//    StringBuilder stringBuilder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        glMineBoard = findViewById(R.id.gl_mine_board);
+//        tvMineBoard = findViewById(R.id.tv_mine_board);
+//        stringBuilder = new StringBuilder();
 
         getMinePosition();
         boardInit();
@@ -88,21 +98,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-        배열을 순회하며 배열값이 -1일 경우 지뢰로 간주하여 '*' 로 출력 한다.
-     */
     public void printBoard(){
         for(int i=0 ; i<MAX_ROW ; ++i){
             for(int j=0 ; j<MAX_COL ; ++j){
                 int val = boards[i][j];
                 if(val == -1){
                     System.out.print("*");
+//                    stringBuilder.append("*");
+                    TextView tv = new TextView(this);
+                    tv.setText("*");
+                    glMineBoard.addView(tv);
                 }else{
                     System.out.print(val);
+//                    stringBuilder.append(val);
+                    TextView tv1 = new TextView(this);
+                    tv1.setText(String.valueOf(val));
+                    glMineBoard.addView(tv1);
                 }
                 System.out.print(" ");
+//                stringBuilder.append(" ");
+//                TextView tv2 = new TextView(this);
+//                tv2.setText(" ");
+//                glMineBoard.addView(tv2);
             }
             System.out.println();
+//            stringBuilder.append("\n");
         }
+//        tvMineBoard.setText(stringBuilder);
     }
 }
