@@ -1,20 +1,17 @@
 package com.bongjava.test;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.GridLayout;
 import android.widget.TextView;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
-
 public class MainActivity extends AppCompatActivity {
 
-    GridLayout glMineBoard;
-//    TextView tvMineBoard;
-//    StringBuilder stringBuilder;
+    public final static int ROW_COUNT = 10;
+    public final static int COL_COUNT = 10;
+
+    private int[][] boards;
+    private GridLayout glMineBoard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,108 +19,61 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         glMineBoard = findViewById(R.id.gl_mine_board);
-//        tvMineBoard = findViewById(R.id.tv_mine_board);
-//        stringBuilder = new StringBuilder();
 
-        getMinePosition();
-        boardInit();
-        makeBoard();
-        printBoard();
+        init();
+        calculate();
+        display();
     }
 
-    // 보드 행과 열
-    public static int MAX_ROW = 10;
-    public static int MAX_COL = 10;
-    //지뢰 총갯수
-    public static int TOTAL_MINE = 10;
-    // 보드 배열
-    public static int[][] boards = new int[MAX_ROW][MAX_COL];
-    // 지뢰 위치 hashmap
-    public static HashMap<Integer, Integer> mines = new HashMap();
+    private void init() {
+        boards = new int[ROW_COUNT][COL_COUNT];
 
-    /*
-        지뢰 위치를 랜덤하게 생성
-        HashMap을 이용하여 랜덤값 중복을 방지 한다
-     */
-    public void getMinePosition(){
-        Random random = new Random();
-
-        for(int i=0 ; i < TOTAL_MINE ; ++i){
-            int ranNum = random.nextInt(100);
-            if(!mines.containsKey(ranNum)){
-                mines.put(ranNum, -1);
-            }else{
-                --i;
+        // row, col이 같은 경우를 지뢰로 지정함.
+        for (int row = 0; row < ROW_COUNT; row++) {
+            for (int col = 0; col < COL_COUNT; col++) {
+                if (row == col) {
+                    boards[row][col] = -1;
+                }
             }
         }
     }
 
-    /*
-        0으로 초기화 되어있는 보드 배열에 지뢰 위치값에 따라 -1 로 지뢰를 세팅한다.
-     */
-    public void boardInit(){
-        Collection k = mines.keySet();
-        Iterator itr = k.iterator();
-        while(itr.hasNext()){
-            int position = Integer.parseInt(itr.next().toString());
-            boards[position/10][position%10] = -1;
-        }
-    }
-
-    /*
-        각 포지션 별로 자신의 위치를 기준으로 8칸을 검사하여 -1(지뢰값)일 경우 cnt를 +1 해주어 주변 지뢰 갯수를 카운팅한다
-     */
-    public void makeBoard(){
-        for(int i=0 ; i<MAX_ROW ; ++i){
-            for(int j=0 ; j<MAX_COL ; ++j){
-                if(boards[i][j] == -1){
+    private void calculate() {
+        for (int row = 0; row < ROW_COUNT; row++) {
+            for (int col = 0; col < COL_COUNT; col++) {
+                if (boards[row][col] == -1) {
                     continue;
                 }
-                int cnt = 0;
 
-                for(int n=-1 ; n<=1 ; ++n){
-                    for(int m=-1 ; m<=1 ; ++m){
-                        if(n==0 && m==0){
+                for (int n = -1; n <= 1; n++) {
+                    for (int m = -1; m <= 1; m++) {
+                        if (n == 0 && m == 0) {
                             continue;
                         }
-                        if(i+n >= 0 && j+m >= 0 && i+n < MAX_ROW  && j+m < MAX_COL){
-                            if(boards[i+n][j+m] == -1){
-                                cnt++;
+                        if (row + n >= 0 && col + m >= 0
+                                && row + n < ROW_COUNT  && col + m < COL_COUNT) {
+                            if (boards[row + n][col + m] == -1) {
+                                boards[row][col]++;
                             }
                         }
                     }
                 }
-                boards[i][j] = cnt;
             }
         }
     }
 
-    public void printBoard(){
-        for(int i=0 ; i<MAX_ROW ; ++i){
-            for(int j=0 ; j<MAX_COL ; ++j){
-                int val = boards[i][j];
-                if(val == -1){
-                    System.out.print("*");
-//                    stringBuilder.append("*");
-                    TextView tv = new TextView(this);
+    private void display() {
+        for (int row = 0; row < ROW_COUNT; row++) {
+            for (int col = 0; col < COL_COUNT; col++) {
+                TextView tv = new TextView(this);
+                if (boards[row][col] == -1) {
                     tv.setText("*");
                     glMineBoard.addView(tv);
-                }else{
-                    System.out.print(val);
-//                    stringBuilder.append(val);
-                    TextView tv1 = new TextView(this);
-                    tv1.setText(String.valueOf(val));
-                    glMineBoard.addView(tv1);
+                } else {
+                    tv.setText(String.valueOf(boards[row][col]));
+                    glMineBoard.addView(tv);
                 }
-                System.out.print(" ");
-//                stringBuilder.append(" ");
-//                TextView tv2 = new TextView(this);
-//                tv2.setText(" ");
-//                glMineBoard.addView(tv2);
             }
-            System.out.println();
-//            stringBuilder.append("\n");
         }
-//        tvMineBoard.setText(stringBuilder);
     }
 }
